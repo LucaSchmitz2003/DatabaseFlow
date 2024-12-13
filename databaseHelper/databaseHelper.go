@@ -18,31 +18,9 @@ var (
 	tracer = otel.Tracer("DatabaseTracer")
 	logger = loggingHelper.GetLogHelper()
 
-	models     []interface{}
-	modelsSet  bool
-	modelsOnce sync.Once
-
 	db   *gorm.DB
 	once sync.Once
 )
-
-// RegisterModels allows external projects to register their models for migration.
-func RegisterModels(ctx context.Context, newModels ...interface{}) {
-	ctx, span := tracer.Start(ctx, "RegisterModels")
-	defer span.End()
-
-	// Check if models have already been set
-	if modelsSet {
-		logger.Error(ctx, "Models have already been set")
-		return
-	}
-
-	// Set the models only once
-	modelsOnce.Do(func() {
-		models = newModels
-		modelsSet = true
-	})
-}
 
 // initDB initializes a new instance of gorm.DB with the specified database connection parameters.
 // It panics if it fails to connect to the database, ensuring that the application does not start with an invalid state.
