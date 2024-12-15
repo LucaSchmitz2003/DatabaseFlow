@@ -119,7 +119,7 @@ func GetDB(ctx context.Context) *gorm.DB {
 	}
 
 	// Create a new DB instance if it does not exist
-	once.Do(func() { // ToDo: Add timeout to prevent deadlock
+	once.Do(func() {
 		var err error = nil
 		db, err = initDB(ctx)
 		if err != nil {
