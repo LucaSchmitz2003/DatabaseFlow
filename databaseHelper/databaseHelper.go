@@ -58,6 +58,12 @@ func initDB(ctx context.Context) (*gorm.DB, error) {
 		logger.Error(ctx, "TZ not set, using default")
 		timeZone = "Europe/Berlin"
 	}
+	connectTimeoutSeconds, err := strconv.Atoi(os.Getenv("CONNECT_TIMEOUT_SECONDS"))
+	if err != nil {
+		err = errors.Wrap(err, "Failed to parse CONNECT_TIMEOUT_SECONDS, using default")
+		logger.Error(ctx, err)
+		connectTimeoutSeconds = 10
+	}
 	port, err := strconv.Atoi(os.Getenv("DB_PORT"))
 	if err != nil {
 		err = errors.Wrap(err, "Failed to parse DB_PORT, using default")
@@ -77,8 +83,8 @@ func initDB(ctx context.Context) (*gorm.DB, error) {
 		sslModeString = "disable"
 	}
 	// Create a new database connection string.
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
-		host, userName, password, dbName, port, sslModeString, timeZone)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s connect_timeout=%d",
+		host, userName, password, dbName, port, sslModeString, timeZone, connectTimeoutSeconds)
 
 	// Connect to the database.
 	db, err1 := gorm.Open(
@@ -113,7 +119,7 @@ func GetDB(ctx context.Context) *gorm.DB {
 	}
 
 	// Create a new DB instance if it does not exist
-	once.Do(func() {
+	once.Do(func() { // ToDo: Add timeout to prevent deadlock
 		var err error = nil
 		db, err = initDB(ctx)
 		if err != nil {
