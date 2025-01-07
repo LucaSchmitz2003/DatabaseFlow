@@ -3,7 +3,7 @@ package DatabaseFlow
 import (
 	"context"
 	"fmt"
-	"github.com/LucaSchmitz2003/FlowWatch/loggingHelper"
+	"github.com/LucaSchmitz2003/FlowWatch"
 	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel"
@@ -16,7 +16,7 @@ import (
 
 var (
 	tracer = otel.Tracer("DatabaseTracer")
-	logger = loggingHelper.GetLogHelper()
+	logger = FlowWatch.GetLogHelper()
 
 	db   *gorm.DB
 	once sync.Once
